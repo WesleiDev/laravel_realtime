@@ -6,7 +6,12 @@
                     <div class="card-header">Messages</div>
 
                     <div class="card-body">
-                        Vou listar Mensagens Aqui!
+                        <div class="alert alert-info" v-if="messages.length <= 0">Nenhuma mensagem</div>
+                        <p v-for="(message, index) in messages" :key="index">
+                            <strong>{{ message.title }}</strong><br>
+                            {{ message.body }}
+                            <small> {{ message.created_at }} </small>
+                        </p>
                     </div>
                 </div>
             </div>
@@ -16,10 +21,18 @@
 
 <script>
     export default {
+        props:[
+            'userId'
+        ],
+        data(){
+            return {
+                messages:[]
+            }
+        },
         mounted() {
-            Echo.channel('message-received')
-                .listen('SendMessage', () =>{
-                    console.log('A outra página foi carregada');
+            Echo.private('message.received.'+this.userId)
+                .listen('SendMessage', (e) =>{
+                    this.messages.push(e)
                 })
         }
     }
